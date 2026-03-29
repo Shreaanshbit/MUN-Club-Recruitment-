@@ -264,3 +264,29 @@ body {
 .error-text {
   color: #f87171;
 }
+
+.yield-status {
+  color: #cbd5e1;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.delegate-yield-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.delegate-yield-box label {
+  color: #cbd5e1;
+  font-size: 14px;
+  text-align: center;
+}
+
+.delegate-yield-box select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: white;
+}

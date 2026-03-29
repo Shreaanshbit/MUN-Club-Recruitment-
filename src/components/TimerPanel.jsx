@@ -6,6 +6,7 @@ function TimerPanel({
   startTimer,
   pauseTimer,
   resetTimer,
+  nextSpeaker,
 }) {
   const formatTime = (totalSeconds) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -38,6 +39,9 @@ function TimerPanel({
           Pause
         </button>
         <button onClick={resetTimer}>Reset</button>
+        <button onClick={nextSpeaker} disabled={isRunning || !currentSpeaker}>
+          Next Speaker
+        </button>
       </div>
     </section>
   );

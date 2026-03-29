@@ -45,6 +45,7 @@ function App() {
     const newDelegate = {
       id: Date.now() + Math.random(),
       country: cleaned,
+      code: "",
     };
 
     if (!currentSpeaker) {
@@ -86,31 +87,69 @@ function App() {
   };
 
   const initializeCommittee = () => {
-  const minutes = Number(totalCommitteeTime);
+    const minutes = Number(totalCommitteeTime);
 
-  if (selectedCountries.length === 0 || !minutes || minutes <= 0) return;
+    if (selectedCountries.length === 0 || !minutes || minutes <= 0) return;
 
-  const delegates = selectedCountries.map((countryObj) => ({
-    id: Date.now() + Math.random(),
-    country: countryObj.name,
-    code: countryObj.code,
-  }));
+    const delegates = selectedCountries.map((countryObj) => ({
+      id: Date.now() + Math.random(),
+      country: countryObj.name,
+      code: countryObj.code,
+    }));
 
-  const totalSeconds = minutes * 60;
-  const perDelegateTime = Math.max(
-    30,
-    Math.floor(totalSeconds / delegates.length)
-  );
+    const totalSeconds = minutes * 60;
+    const perDelegateTime = Math.max(
+      30,
+      Math.floor(totalSeconds / delegates.length)
+    );
 
-  const [first, ...rest] = delegates;
+    const [first, ...rest] = delegates;
 
-  setCurrentSpeaker(first || null);
-  setQueue(rest);
-  setDefaultTime(perDelegateTime);
-  setTimeLeft(perDelegateTime);
-  setIsRunning(false);
-  setMode("speech");
-};
+    setCurrentSpeaker(first || null);
+    setQueue(rest);
+    setDefaultTime(perDelegateTime);
+    setTimeLeft(perDelegateTime);
+    setIsRunning(false);
+    setMode("speech");
+  };
+
+  const nextSpeaker = () => {
+    setIsRunning(false);
+    setMode("speech");
+
+    if (queue.length === 0) {
+      setCurrentSpeaker(null);
+      setTimeLeft(defaultTime);
+      return;
+    }
+
+    const [next, ...rest] = queue;
+    setCurrentSpeaker(next);
+    setQueue(rest);
+    setTimeLeft(defaultTime);
+  };
+
+  const yieldToChair = () => {
+    if (isRunning || !currentSpeaker) return;
+    nextSpeaker();
+  };
+
+  const yieldToQuestions = () => {
+    if (isRunning || !currentSpeaker || timeLeft <= 0) return;
+    setMode("questions");
+  };
+
+  const yieldToDelegate = (delegateId) => {
+    if (isRunning || !currentSpeaker) return;
+
+    const selectedDelegate = queue.find((item) => item.id === delegateId);
+    if (!selectedDelegate) return;
+
+    const updatedQueue = queue.filter((item) => item.id !== delegateId);
+
+    setCurrentSpeaker(selectedDelegate);
+    setQueue(updatedQueue);
+  };
 
   return (
     <div className="app">
@@ -143,9 +182,18 @@ function App() {
           startTimer={startTimer}
           pauseTimer={pauseTimer}
           resetTimer={resetTimer}
+          nextSpeaker={nextSpeaker}
         />
 
-        <YieldPanel />
+        <YieldPanel
+          queue={queue}
+          currentSpeaker={currentSpeaker}
+          isRunning={isRunning}
+          mode={mode}
+          yieldToChair={yieldToChair}
+          yieldToQuestions={yieldToQuestions}
+          yieldToDelegate={yieldToDelegate}
+        />
       </main>
     </div>
   );
