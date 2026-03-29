@@ -1,5 +1,4 @@
-import { useState } from "react";
-import countries from "../data/countries";
+import { useEffect, useState } from "react";
 
 function QueuePanel({
   queue,
@@ -14,6 +13,44 @@ function QueuePanel({
   initializeCommittee,
 }) {
   const [country, setCountry] = useState("");
+  const [allCountries, setAllCountries] = useState([]);
+  const [loadingCountries, setLoadingCountries] = useState(true);
+  const [countriesError, setCountriesError] = useState("");
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        setLoadingCountries(true);
+        setCountriesError("");
+
+        const response = await fetch(
+          "https://restcountries.com/v3.1/all?fields=name,cca2"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch countries");
+        }
+
+        const data = await response.json();
+
+        const formatted = data
+          .filter((item) => item?.name?.common && item?.cca2)
+          .map((item) => ({
+            name: item.name.common,
+            code: item.cca2,
+          }))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        setAllCountries(formatted);
+      } catch (error) {
+        setCountriesError("Could not load countries");
+      } finally {
+        setLoadingCountries(false);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -21,12 +58,16 @@ function QueuePanel({
     setCountry("");
   };
 
-  const handleCheckbox = (countryName) => {
-    setSelectedCountries((prev) =>
-      prev.includes(countryName)
-        ? prev.filter((item) => item !== countryName)
-        : [...prev, countryName]
-    );
+  const handleCheckbox = (countryObj) => {
+    setSelectedCountries((prev) => {
+      const exists = prev.some((item) => item.code === countryObj.code);
+
+      if (exists) {
+        return prev.filter((item) => item.code !== countryObj.code);
+      }
+
+      return [...prev, countryObj];
+    });
   };
 
   return (
@@ -36,18 +77,35 @@ function QueuePanel({
       <div className="setup-section">
         <h3>Committee Setup</h3>
 
-        <div className="country-list">
-          {countries.map((countryName) => (
-            <label key={countryName} className="checkbox-item">
-              <input
-                type="checkbox"
-                checked={selectedCountries.includes(countryName)}
-                onChange={() => handleCheckbox(countryName)}
-              />
-              <span>{countryName}</span>
-            </label>
-          ))}
-        </div>
+        {loadingCountries ? (
+          <p className="empty-text">Loading countries...</p>
+        ) : countriesError ? (
+          <p className="error-text">{countriesError}</p>
+        ) : (
+          <div className="country-list">
+            {allCountries.map((countryObj) => {
+              const checked = selectedCountries.some(
+                (item) => item.code === countryObj.code
+              );
+
+              return (
+                <label key={countryObj.code} className="checkbox-item flag-item">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={() => handleCheckbox(countryObj)}
+                  />
+                  <img
+                    src={`https://flagsapi.com/${countryObj.code}/flat/24.png`}
+                    alt={`${countryObj.name} flag`}
+                    className="country-flag"
+                  />
+                  <span>{countryObj.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        )}
 
         <input
           type="number"
@@ -57,7 +115,7 @@ function QueuePanel({
           className="time-input"
         />
 
-        <button onClick={initializeCommittee} className="init-btn">
+        <button onClick={initializeCommittee} className="init-btn" type="button">
           Initialize Committee
         </button>
       </div>

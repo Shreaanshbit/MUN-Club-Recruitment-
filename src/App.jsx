@@ -86,30 +86,31 @@ function App() {
   };
 
   const initializeCommittee = () => {
-    const minutes = Number(totalCommitteeTime);
+  const minutes = Number(totalCommitteeTime);
 
-    if (selectedCountries.length === 0 || !minutes || minutes <= 0) return;
+  if (selectedCountries.length === 0 || !minutes || minutes <= 0) return;
 
-    const delegates = selectedCountries.map((country) => ({
-      id: Date.now() + Math.random(),
-      country,
-    }));
+  const delegates = selectedCountries.map((countryObj) => ({
+    id: Date.now() + Math.random(),
+    country: countryObj.name,
+    code: countryObj.code,
+  }));
 
-    const totalSeconds = minutes * 60;
-    const perDelegateTime = Math.max(
-      30,
-      Math.floor(totalSeconds / delegates.length)
-    );
+  const totalSeconds = minutes * 60;
+  const perDelegateTime = Math.max(
+    30,
+    Math.floor(totalSeconds / delegates.length)
+  );
 
-    const [first, ...rest] = delegates;
+  const [first, ...rest] = delegates;
 
-    setCurrentSpeaker(first || null);
-    setQueue(rest);
-    setDefaultTime(perDelegateTime);
-    setTimeLeft(perDelegateTime);
-    setIsRunning(false);
-    setMode("speech");
-  };
+  setCurrentSpeaker(first || null);
+  setQueue(rest);
+  setDefaultTime(perDelegateTime);
+  setTimeLeft(perDelegateTime);
+  setIsRunning(false);
+  setMode("speech");
+};
 
   return (
     <div className="app">

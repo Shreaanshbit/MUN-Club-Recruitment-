@@ -246,3 +246,21 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.flag-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.country-flag {
+  width: 24px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid #475569;
+}
+
+.error-text {
+  color: #f87171;
+}
