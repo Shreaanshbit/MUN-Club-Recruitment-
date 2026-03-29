@@ -24,25 +24,6 @@ body {
   flex-wrap: wrap;
 }
 
-.preset-box {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.preset-box label {
-  color: #cbd5e1;
-  font-size: 14px;
-}
-
-.preset-box select {
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #475569;
-  background: #0f172a;
-  color: white;
-}
-
 .topbar h1 {
   font-size: 32px;
   margin-bottom: 6px;
@@ -70,6 +51,49 @@ body {
   font-size: 22px;
 }
 
+.setup-section {
+  margin-bottom: 20px;
+  padding: 14px;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  background: #020617;
+}
+
+.setup-section h3 {
+  margin-bottom: 12px;
+}
+
+.country-list {
+  max-height: 220px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-right: 4px;
+}
+
+.checkbox-item {
+  font-size: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.time-input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0 12px;
+  border-radius: 10px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: white;
+}
+
+.init-btn {
+  width: 100%;
+}
+
 .add-form {
   display: flex;
   gap: 10px;
@@ -88,7 +112,8 @@ body {
 .add-form button,
 .timer-buttons button,
 .yield-buttons button,
-.queue-actions button {
+.queue-actions button,
+.init-btn {
   padding: 10px 14px;
   border: none;
   border-radius: 10px;
@@ -158,26 +183,6 @@ body {
   text-align: center;
 }
 
-.timer-display {
-  font-size: 64px;
-  font-weight: bold;
-  margin: 20px 0;
-}
-
-.timer-buttons,
-.yield-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.yield-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
 .timer-mode {
   color: #cbd5e1;
   margin-bottom: 8px;
@@ -189,8 +194,22 @@ body {
   font-weight: 600;
 }
 
+.timer-display {
+  font-size: 64px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
 .timer-display.warning {
-  color: #f97316;
+  color: #ef4444;
+}
+
+.timer-buttons,
+.yield-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .timer-buttons button:disabled,
@@ -200,10 +219,10 @@ body {
   cursor: not-allowed;
 }
 
-@media (max-width: 1000px) {
-  .dashboard {
-    grid-template-columns: 1fr;
-  }
+.yield-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 @keyframes blink {
@@ -211,7 +230,7 @@ body {
     opacity: 1;
   }
   50% {
-    opacity: 0.3;
+    opacity: 0.35;
   }
   100% {
     opacity: 1;
@@ -222,10 +241,8 @@ body {
   animation: blink 1s infinite;
 }
 
-.timer-display.warning {
-  color: #ef4444;
-}
-
-.timer-display.fast {
-  animation: blink 0.5s infinite;
+@media (max-width: 1000px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
 }

@@ -13,6 +13,9 @@ function TimerPanel({
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
 
+  const timerClass =
+    timeLeft <= 20 ? "timer-display warning blink" : "timer-display";
+
   return (
     <section className="panel timer-panel">
       <h2>Committee Timer</h2>
@@ -25,17 +28,7 @@ function TimerPanel({
         {currentSpeaker ? currentSpeaker.country : "No active speaker"}
       </p>
 
-            <div
-        className={`timer-display ${
-            timeLeft <= 5
-            ? "warning blink fast"
-            : timeLeft <= 20
-            ? "warning blink"
-            : ""
-        }`}
-        >
-        {formatTime(timeLeft)}
-      </div>
+      <div className={timerClass}>{formatTime(timeLeft)}</div>
 
       <div className="timer-buttons">
         <button onClick={startTimer} disabled={!currentSpeaker || isRunning}>

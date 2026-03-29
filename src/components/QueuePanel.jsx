@@ -1,6 +1,18 @@
 import { useState } from "react";
+import countries from "../data/countries";
 
-function QueuePanel({ queue, currentSpeaker, addCountry, removeFromQueue, moveToBottom }) {
+function QueuePanel({
+  queue,
+  currentSpeaker,
+  addCountry,
+  removeFromQueue,
+  moveToBottom,
+  selectedCountries,
+  setSelectedCountries,
+  totalCommitteeTime,
+  setTotalCommitteeTime,
+  initializeCommittee,
+}) {
   const [country, setCountry] = useState("");
 
   const handleSubmit = (e) => {
@@ -9,14 +21,51 @@ function QueuePanel({ queue, currentSpeaker, addCountry, removeFromQueue, moveTo
     setCountry("");
   };
 
+  const handleCheckbox = (countryName) => {
+    setSelectedCountries((prev) =>
+      prev.includes(countryName)
+        ? prev.filter((item) => item !== countryName)
+        : [...prev, countryName]
+    );
+  };
+
   return (
     <section className="panel queue-panel">
       <h2>General Speakers List</h2>
 
+      <div className="setup-section">
+        <h3>Committee Setup</h3>
+
+        <div className="country-list">
+          {countries.map((countryName) => (
+            <label key={countryName} className="checkbox-item">
+              <input
+                type="checkbox"
+                checked={selectedCountries.includes(countryName)}
+                onChange={() => handleCheckbox(countryName)}
+              />
+              <span>{countryName}</span>
+            </label>
+          ))}
+        </div>
+
+        <input
+          type="number"
+          placeholder="Total committee time (minutes)"
+          value={totalCommitteeTime}
+          onChange={(e) => setTotalCommitteeTime(e.target.value)}
+          className="time-input"
+        />
+
+        <button onClick={initializeCommittee} className="init-btn">
+          Initialize Committee
+        </button>
+      </div>
+
       <form onSubmit={handleSubmit} className="add-form">
         <input
           type="text"
-          placeholder="Enter country name"
+          placeholder="Enter country name manually"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
         />
@@ -42,8 +91,14 @@ function QueuePanel({ queue, currentSpeaker, addCountry, removeFromQueue, moveTo
               </div>
 
               <div className="queue-actions">
-                <button onClick={() => moveToBottom(item.id)}>Move to Bottom</button>
-                <button onClick={() => removeFromQueue(item.id)} className="danger-btn">
+                <button type="button" onClick={() => moveToBottom(item.id)}>
+                  Move to Bottom
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeFromQueue(item.id)}
+                  className="danger-btn"
+                >
                   Remove
                 </button>
               </div>

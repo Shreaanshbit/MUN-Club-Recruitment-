@@ -13,6 +13,9 @@ function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState("speech");
 
+  const [selectedCountries, setSelectedCountries] = useState([]);
+  const [totalCommitteeTime, setTotalCommitteeTime] = useState("");
+
   useEffect(() => {
     let interval;
 
@@ -40,7 +43,7 @@ function App() {
     if (alreadyExists) return;
 
     const newDelegate = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       country: cleaned,
     };
 
@@ -82,9 +85,28 @@ function App() {
     setMode("speech");
   };
 
-  const handlePresetChange = (seconds) => {
-    setDefaultTime(seconds);
-    setTimeLeft(seconds);
+  const initializeCommittee = () => {
+    const minutes = Number(totalCommitteeTime);
+
+    if (selectedCountries.length === 0 || !minutes || minutes <= 0) return;
+
+    const delegates = selectedCountries.map((country) => ({
+      id: Date.now() + Math.random(),
+      country,
+    }));
+
+    const totalSeconds = minutes * 60;
+    const perDelegateTime = Math.max(
+      30,
+      Math.floor(totalSeconds / delegates.length)
+    );
+
+    const [first, ...rest] = delegates;
+
+    setCurrentSpeaker(first || null);
+    setQueue(rest);
+    setDefaultTime(perDelegateTime);
+    setTimeLeft(perDelegateTime);
     setIsRunning(false);
     setMode("speech");
   };
@@ -96,18 +118,6 @@ function App() {
           <h1>MUN Chair Dashboard</h1>
           <p>General Speakers List Management</p>
         </div>
-
-        <div className="preset-box">
-          <label>Speech Time</label>
-          <select
-            value={defaultTime}
-            onChange={(e) => handlePresetChange(Number(e.target.value))}
-          >
-            <option value={60}>60 sec</option>
-            <option value={90}>90 sec</option>
-            <option value={120}>120 sec</option>
-          </select>
-        </div>
       </header>
 
       <main className="dashboard">
@@ -117,6 +127,11 @@ function App() {
           addCountry={addCountry}
           removeFromQueue={removeFromQueue}
           moveToBottom={moveToBottom}
+          selectedCountries={selectedCountries}
+          setSelectedCountries={setSelectedCountries}
+          totalCommitteeTime={totalCommitteeTime}
+          setTotalCommitteeTime={setTotalCommitteeTime}
+          initializeCommittee={initializeCommittee}
         />
 
         <TimerPanel
