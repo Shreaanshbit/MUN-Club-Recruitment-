@@ -53,8 +53,25 @@ button:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+  background: var(--bg);
+  position: relative;
+  z-index: 0;
 }
 
+/* Watermark background logo */
+.app::before {
+  content: "";
+  position: fixed;
+  top: 64px; /* height of header bar */
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 64px);
+  background: url('/logo-mun.png') no-repeat center 60%;
+  background-size: 48vw;
+  opacity: 0.13;
+  pointer-events: none;
+  z-index: 0;
+}
 /* ── Watermark logo ──────────────────────────────────────────────────────── */
 .watermark-wrap {
   position: fixed;
