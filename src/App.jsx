@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import QueuePanel from "./components/QueuePanel";
 import TimerPanel from "./components/TimerPanel";
@@ -7,6 +7,27 @@ import YieldPanel from "./components/YieldPanel";
 function App() {
   const [queue, setQueue] = useState([]);
   const [currentSpeaker, setCurrentSpeaker] = useState(null);
+
+  const [defaultTime, setDefaultTime] = useState(90);
+  const [timeLeft, setTimeLeft] = useState(90);
+  const [isRunning, setIsRunning] = useState(false);
+  const [mode, setMode] = useState("speech");
+
+  useEffect(() => {
+    let interval;
+
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    }
+
+    if (timeLeft === 0) {
+      setIsRunning(false);
+    }
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft]);
 
   const addCountry = (countryName) => {
     const cleaned = countryName.trim();
@@ -46,12 +67,46 @@ function App() {
     });
   };
 
+  const startTimer = () => {
+    if (!currentSpeaker || timeLeft === 0) return;
+    setIsRunning(true);
+  };
+
+  const pauseTimer = () => {
+    setIsRunning(false);
+  };
+
+  const resetTimer = () => {
+    setIsRunning(false);
+    setTimeLeft(defaultTime);
+    setMode("speech");
+  };
+
+  const handlePresetChange = (seconds) => {
+    setDefaultTime(seconds);
+    setTimeLeft(seconds);
+    setIsRunning(false);
+    setMode("speech");
+  };
+
   return (
     <div className="app">
       <header className="topbar">
         <div>
           <h1>MUN Chair Dashboard</h1>
           <p>General Speakers List Management</p>
+        </div>
+
+        <div className="preset-box">
+          <label>Speech Time</label>
+          <select
+            value={defaultTime}
+            onChange={(e) => handlePresetChange(Number(e.target.value))}
+          >
+            <option value={60}>60 sec</option>
+            <option value={90}>90 sec</option>
+            <option value={120}>120 sec</option>
+          </select>
         </div>
       </header>
 
@@ -64,7 +119,15 @@ function App() {
           moveToBottom={moveToBottom}
         />
 
-        <TimerPanel />
+        <TimerPanel
+          timeLeft={timeLeft}
+          isRunning={isRunning}
+          mode={mode}
+          currentSpeaker={currentSpeaker}
+          startTimer={startTimer}
+          pauseTimer={pauseTimer}
+          resetTimer={resetTimer}
+        />
 
         <YieldPanel />
       </main>

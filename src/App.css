@@ -17,6 +17,30 @@ body {
 
 .topbar {
   margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.preset-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preset-box label {
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.preset-box select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: white;
 }
 
 .topbar h1 {
@@ -154,8 +178,54 @@ body {
   gap: 20px;
 }
 
+.timer-mode {
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.speaker-label {
+  color: #93c5fd;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.timer-display.warning {
+  color: #f97316;
+}
+
+.timer-buttons button:disabled,
+.yield-buttons button:disabled,
+.queue-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1000px) {
   .dashboard {
     grid-template-columns: 1fr;
   }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.timer-display.blink {
+  animation: blink 1s infinite;
+}
+
+.timer-display.warning {
+  color: #ef4444;
+}
+
+.timer-display.fast {
+  animation: blink 0.5s infinite;
 }
