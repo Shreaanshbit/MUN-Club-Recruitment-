@@ -1,10 +1,78 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import QueuePanel from "./components/QueuePanel";
 import TimerPanel from "./components/TimerPanel";
 import YieldPanel from "./components/YieldPanel";
 
+// ── Scroll-reveal hook ────────────────────────────────────────────────────────
+function useScrollReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { threshold: 0.08 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+function RevealCol({ children, delay = 0 }) {
+  const [ref, visible] = useScrollReveal();
+  return (
+    <div
+      ref={ref}
+      className="reveal-col"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(28px)",
+        transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+function Header({ committeeTimeLeft, totalCommitteeTime }) {
+  // Format committee time as hh:mm:ss
+  const formatTime = (totalSeconds) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  };
+  return (
+    <header className="topbar">
+      <div className="topbar-brand">
+        <div className="topbar-emblem">🌐</div>
+        <div>
+          <h1>MUN Chair Dashboard</h1>
+          <p>General Speakers' List Management</p>
+        </div>
+      </div>
+      <div className="session-pill" style={{fontSize: '1.45rem', fontWeight: 700, padding: '10px 28px'}}>
+        <span className="session-dot" />
+        {totalCommitteeTime > 0 ? (
+          <>
+             {formatTime(committeeTimeLeft)}
+          </>
+        ) : (
+          "No Committee Timer"
+        )}
+      </div>
+    </header>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────────────
 function App() {
+  // ── State (your original backend) ──
   const [queue, setQueue] = useState([]);
   const [currentSpeaker, setCurrentSpeaker] = useState(null);
 
@@ -15,23 +83,30 @@ function App() {
 
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [totalCommitteeTime, setTotalCommitteeTime] = useState("");
+  const [committeeTimeLeft, setCommitteeTimeLeft] = useState(0);
 
+  // Parallax scroll
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // ── Timer (your original backend) ──
   useEffect(() => {
     let interval;
-
-    if (isRunning && timeLeft > 0) {
+    if (isRunning && (timeLeft > 0 || committeeTimeLeft > 0)) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+        setCommitteeTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
-
-    if (timeLeft === 0) {
-      setIsRunning(false);
-    }
-
+    if (timeLeft === 0) setIsRunning(false);
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
+  }, [isRunning, timeLeft, committeeTimeLeft]);
 
+  // ── Handlers (your original backend) ──
   const addCountry = (countryName) => {
     const cleaned = countryName.trim();
     if (!cleaned) return;
@@ -63,7 +138,6 @@ function App() {
     setQueue((prev) => {
       const index = prev.findIndex((item) => item.id === id);
       if (index === -1) return prev;
-
       const updated = [...prev];
       const [movedItem] = updated.splice(index, 1);
       updated.push(movedItem);
@@ -76,9 +150,7 @@ function App() {
     setIsRunning(true);
   };
 
-  const pauseTimer = () => {
-    setIsRunning(false);
-  };
+  const pauseTimer = () => setIsRunning(false);
 
   const resetTimer = () => {
     setIsRunning(false);
@@ -88,7 +160,6 @@ function App() {
 
   const initializeCommittee = () => {
     const minutes = Number(totalCommitteeTime);
-
     if (selectedCountries.length === 0 || !minutes || minutes <= 0) return;
 
     const delegates = selectedCountries.map((countryObj) => ({
@@ -104,11 +175,11 @@ function App() {
     );
 
     const [first, ...rest] = delegates;
-
     setCurrentSpeaker(first || null);
     setQueue(rest);
     setDefaultTime(perDelegateTime);
     setTimeLeft(perDelegateTime);
+    setCommitteeTimeLeft(totalSeconds);
     setIsRunning(false);
     setMode("speech");
   };
@@ -141,59 +212,78 @@ function App() {
 
   const yieldToDelegate = (delegateId) => {
     if (isRunning || !currentSpeaker) return;
-
     const selectedDelegate = queue.find((item) => item.id === delegateId);
     if (!selectedDelegate) return;
-
     const updatedQueue = queue.filter((item) => item.id !== delegateId);
-
     setCurrentSpeaker(selectedDelegate);
     setQueue(updatedQueue);
   };
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div>
-          <h1>MUN Chair Dashboard</h1>
-          <p>General Speakers List Management</p>
-        </div>
-      </header>
+      {/* Watermark logo */}
+      <div
+        className="watermark-wrap"
+        aria-hidden="true"
+        style={{ "--parallax": `${-scrollY * 0.25}px` }}
+      >
+        <img
+          src="/logo.png"
+          alt=""
+          className="watermark-logo"
+          style={{ transform: `translateY(${-scrollY * 0.25}px)` }}
+        />
+      </div>
 
+      {/* Header */}
+      <div className="header-animate">
+        <Header committeeTimeLeft={committeeTimeLeft} totalCommitteeTime={Number(totalCommitteeTime) * 60} />
+      </div>
+
+      {/* Dashboard grid */}
       <main className="dashboard">
-        <QueuePanel
-          queue={queue}
-          currentSpeaker={currentSpeaker}
-          addCountry={addCountry}
-          removeFromQueue={removeFromQueue}
-          moveToBottom={moveToBottom}
-          selectedCountries={selectedCountries}
-          setSelectedCountries={setSelectedCountries}
-          totalCommitteeTime={totalCommitteeTime}
-          setTotalCommitteeTime={setTotalCommitteeTime}
-          initializeCommittee={initializeCommittee}
-        />
+        <RevealCol delay={0}>
+          <QueuePanel
+            queue={queue}
+            currentSpeaker={currentSpeaker}
+            addCountry={addCountry}
+            removeFromQueue={removeFromQueue}
+            moveToBottom={moveToBottom}
+            selectedCountries={selectedCountries}
+            setSelectedCountries={setSelectedCountries}
+            totalCommitteeTime={totalCommitteeTime}
+            setTotalCommitteeTime={setTotalCommitteeTime}
+            initializeCommittee={initializeCommittee}
+          />
+        </RevealCol>
 
-        <TimerPanel
-          timeLeft={timeLeft}
-          isRunning={isRunning}
-          mode={mode}
-          currentSpeaker={currentSpeaker}
-          startTimer={startTimer}
-          pauseTimer={pauseTimer}
-          resetTimer={resetTimer}
-          nextSpeaker={nextSpeaker}
-        />
+        <RevealCol delay={120}>
+          <TimerPanel
+            timeLeft={timeLeft}
+            isRunning={isRunning}
+            mode={mode}
+            currentSpeaker={currentSpeaker}
+            startTimer={startTimer}
+            pauseTimer={pauseTimer}
+            resetTimer={resetTimer}
+            nextSpeaker={nextSpeaker}
+            defaultTime={defaultTime}
+            committeeTimeLeft={committeeTimeLeft}
+            totalCommitteeTime={Number(totalCommitteeTime) * 60}
+          />
+        </RevealCol>
 
-        <YieldPanel
-          queue={queue}
-          currentSpeaker={currentSpeaker}
-          isRunning={isRunning}
-          mode={mode}
-          yieldToChair={yieldToChair}
-          yieldToQuestions={yieldToQuestions}
-          yieldToDelegate={yieldToDelegate}
-        />
+        <RevealCol delay={240}>
+          <YieldPanel
+            queue={queue}
+            currentSpeaker={currentSpeaker}
+            isRunning={isRunning}
+            mode={mode}
+            yieldToChair={yieldToChair}
+            yieldToQuestions={yieldToQuestions}
+            yieldToDelegate={yieldToDelegate}
+          />
+        </RevealCol>
       </main>
     </div>
   );
