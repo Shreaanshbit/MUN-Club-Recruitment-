@@ -44,6 +44,7 @@ function YieldPanel({
   };
 
   return (
+
     <section className="panel premium-yield-panel">
       <h2 className="section-title">Yield Controls</h2>
 
@@ -51,7 +52,17 @@ function YieldPanel({
       <div className="yield-status-card">
         <span className="status-label">Active Speaker</span>
         {currentSpeaker ? (
-          <p className="status-speaker">{currentSpeaker.country}</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            {currentSpeaker.code && (
+              <img
+                src={`https://flagsapi.com/${currentSpeaker.code}/flat/24.png`}
+                alt={`${currentSpeaker.country} flag`}
+                className="country-flag"
+                style={{ width: 24, height: 16, borderRadius: 3, border: '1px solid #cbd5e1', objectFit: 'cover' }}
+              />
+            )}
+            <p className="status-speaker" style={{ margin: 0 }}>{currentSpeaker.country}</p>
+          </div>
         ) : (
           <p className="status-speaker status-speaker--empty">No active speaker</p>
         )}

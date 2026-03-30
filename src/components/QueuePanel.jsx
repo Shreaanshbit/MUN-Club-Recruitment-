@@ -193,17 +193,6 @@ function QueuePanel({
         </form>
       </div>
 
-      {/* ── Current Speaker ── */}
-      <div className="current-speaker-card highlight-card">
-        <div className="subsection-header">
-          <h3>Current Speaker</h3>
-          <span className="speaker-badge">Live</span>
-        </div>
-        <p className="current-speaker-name">
-          {currentSpeaker ? currentSpeaker.country : "No speaker selected"}
-        </p>
-      </div>
-
       {/* ── Upcoming Speakers ── */}
       <div className="queue-list-card">
         <div className="subsection-header">
