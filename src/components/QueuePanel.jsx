@@ -1,7 +1,27 @@
 import { useEffect, useState } from "react";
+import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+// Sortable item component for dnd-kit
+function SortableQueueItem({ id, children }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 2 : 1,
+    opacity: isDragging ? 0.7 : 1,
+    cursor: 'grab',
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+}
 
 function QueuePanel({
   queue,
+  setQueue,
   currentSpeaker,
   addCountry,
   removeFromQueue,
@@ -66,6 +86,22 @@ function QueuePanel({
   const filtered = allCountries.filter((c) =>
     c.name.toLowerCase().includes(searchQ.toLowerCase())
   );
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+  );
+
+  // Drag end handler
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const oldIndex = queue.findIndex((item) => item.id === active.id);
+      const newIndex = queue.findIndex((item) => item.id === over.id);
+      const newQueue = arrayMove(queue, oldIndex, newIndex);
+      setQueue(newQueue);
+    }
+  };
 
   return (
     <section className="panel queue-panel">
@@ -175,43 +211,49 @@ function QueuePanel({
           <span className="selected-count">{queue.length} in queue</span>
         </div>
 
-        <div className="queue-list">
-          {queue.length === 0 ? (
-            <p className="empty-text">No delegates in queue</p>
-          ) : (
-            queue.map((item, index) => (
-              <div key={item.id} className="queue-item modern">
-                <div className="queue-main">
-                  <span className="queue-number">{index + 1}</span>
-                  {item.code && (
-                    <img
-                      src={`https://flagsapi.com/${item.code}/flat/24.png`}
-                      alt=""
-                      className="queue-flag"
-                    />
-                  )}
-                  <span className="queue-country">{item.country}</span>
-                </div>
-                <div className="queue-actions">
-                  <button
-                    type="button"
-                    onClick={() => moveToBottom(item.id)}
-                    className="ghost-btn"
-                  >
-                    ↓ Bottom
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeFromQueue(item.id)}
-                    className="danger-btn"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={queue.map((item) => item.id)} strategy={verticalListSortingStrategy}>
+            <div className="queue-list">
+              {queue.length === 0 ? (
+                <p className="empty-text">No delegates in queue</p>
+              ) : (
+                queue.map((item, index) => (
+                  <SortableQueueItem key={item.id} id={item.id}>
+                    <div className="queue-item modern">
+                      <div className="queue-main">
+                        <span className="queue-number">{index + 1}</span>
+                        {item.code && (
+                          <img
+                            src={`https://flagsapi.com/${item.code}/flat/24.png`}
+                            alt=""
+                            className="queue-flag"
+                          />
+                        )}
+                        <span className="queue-country">{item.country}</span>
+                      </div>
+                      <div className="queue-actions">
+                        <button
+                          type="button"
+                          onClick={() => moveToBottom(item.id)}
+                          className="ghost-btn"
+                        >
+                          ↓ Bottom
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeFromQueue(item.id)}
+                          className="danger-btn"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  </SortableQueueItem>
+                ))
+              )}
+            </div>
+          </SortableContext>
+        </DndContext>
       </div>
     </section>
   );

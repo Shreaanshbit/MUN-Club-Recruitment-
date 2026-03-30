@@ -245,6 +245,7 @@ function App() {
         <RevealCol delay={0}>
           <QueuePanel
             queue={queue}
+            setQueue={setQueue}
             currentSpeaker={currentSpeaker}
             addCountry={addCountry}
             removeFromQueue={removeFromQueue}
