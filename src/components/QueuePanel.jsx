@@ -32,6 +32,7 @@ function QueuePanel({
   setTotalCommitteeTime,
   initializeCommittee,
 }) {
+  const [minimized, setMinimized] = useState(false);
   const [country, setCountry] = useState("");
   const [allCountries, setAllCountries] = useState([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
@@ -103,95 +104,121 @@ function QueuePanel({
     }
   };
 
+
   return (
     <section className="panel queue-panel">
-      <h2 className="section-title">General Speakers' List</h2>
-
-      {/* ── Committee Setup card ── */}
-      <div className="setup-card">
-        <div className="subsection-header">
-          <h3>⚙ Committee Setup</h3>
-          <span className="selected-count">{selectedCountries.length} selected</span>
-        </div>
-
-        {/* Search filter */}
-        <label className="input-label">Search Countries</label>
-        <input
-          className="search-input"
-          placeholder="Filter countries…"
-          value={searchQ}
-          onChange={(e) => setSearchQ(e.target.value)}
-        />
-
-        {/* Country list */}
-        {loadingCountries ? (
-          <p className="empty-text">Loading countries…</p>
-        ) : countriesError ? (
-          <p className="error-text">{countriesError}</p>
-        ) : (
-          <div className="country-list">
-            {filtered.map((countryObj) => {
-              const checked = selectedCountries.some(
-                (item) => item.code === countryObj.code
-              );
-              return (
-                <label
-                  key={countryObj.code}
-                  className={`country-row${checked ? " country-row--checked" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={() => handleCheckbox(countryObj)}
-                  />
-                  <img
-                    src={`https://flagsapi.com/${countryObj.code}/flat/24.png`}
-                    alt={`${countryObj.name} flag`}
-                    className="country-flag"
-                  />
-                  <div className="country-info">
-                    <span className="country-name">{countryObj.name}</span>
-                    <span className="country-code">{countryObj.code}</span>
-                  </div>
-                </label>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Committee time */}
-        <div className="time-field-group">
-          <label className="input-label">Total Committee Time (minutes)</label>
-          <input
-            type="number"
-            placeholder="Enter total committee time"
-            value={totalCommitteeTime}
-            onChange={(e) => setTotalCommitteeTime(e.target.value)}
-            className="time-input"
-          />
-        </div>
-
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <h2 className="section-title" style={{ marginBottom: 0 }}>General Speakers' List</h2>
         <button
-          onClick={initializeCommittee}
-          className="init-btn primary-btn"
           type="button"
+          className="ghost-btn"
+          style={{ fontSize: 15, padding: '6px 14px', minWidth: 0, display: 'flex', alignItems: 'center', color: '#7A89B0' }}
+          onClick={() => setMinimized((m) => !m)}
+          aria-label={minimized ? 'Expand panel' : 'Minimize panel'}
         >
-          Initialize Committee
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ transform: minimized ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s', marginRight: 6 }}
+          >
+            <path d="M6 9l5 5 5-5" stroke="#7A89B0" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          <span style={{ color: '#7A89B0', fontWeight: 600, fontSize: 14 }}>{minimized ? 'Expand' : 'Minimize'}</span>
         </button>
       </div>
 
-      {/* ── Manual add ── */}
-      <div className="manual-add">
-        <form onSubmit={handleSubmit} className="add-form">
-          <input
-            type="text"
-            placeholder="Enter country name manually"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-          />
-          <button type="submit" className="secondary-btn">Add</button>
-        </form>
-      </div>
+      {!minimized && (
+        <>
+          {/* ── Committee Setup card ── */}
+          <div className="setup-card">
+            <div className="subsection-header">
+              <h3>⚙ Committee Setup</h3>
+              <span className="selected-count">{selectedCountries.length} selected</span>
+            </div>
+
+            {/* Search filter */}
+            <label className="input-label">Search Countries</label>
+            <input
+              className="search-input"
+              placeholder="Filter countries…"
+              value={searchQ}
+              onChange={(e) => setSearchQ(e.target.value)}
+            />
+
+            {/* Country list */}
+            {loadingCountries ? (
+              <p className="empty-text">Loading countries…</p>
+            ) : countriesError ? (
+              <p className="error-text">{countriesError}</p>
+            ) : (
+              <div className="country-list">
+                {filtered.map((countryObj) => {
+                  const checked = selectedCountries.some(
+                    (item) => item.code === countryObj.code
+                  );
+                  return (
+                    <label
+                      key={countryObj.code}
+                      className={`country-row${checked ? " country-row--checked" : ""}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => handleCheckbox(countryObj)}
+                      />
+                      <img
+                        src={`https://flagsapi.com/${countryObj.code}/flat/24.png`}
+                        alt={`${countryObj.name} flag`}
+                        className="country-flag"
+                      />
+                      <div className="country-info">
+                        <span className="country-name">{countryObj.name}</span>
+                        <span className="country-code">{countryObj.code}</span>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Committee time */}
+            <div className="time-field-group">
+              <label className="input-label">Total Committee Time (minutes)</label>
+              <input
+                type="number"
+                placeholder="Enter total committee time"
+                value={totalCommitteeTime}
+                onChange={(e) => setTotalCommitteeTime(e.target.value)}
+                className="time-input"
+              />
+            </div>
+
+            <button
+              onClick={initializeCommittee}
+              className="init-btn primary-btn"
+              type="button"
+            >
+              Initialize Committee
+            </button>
+          </div>
+
+          {/* ── Manual add ── */}
+          <div className="manual-add">
+            <form onSubmit={handleSubmit} className="add-form">
+              <input
+                type="text"
+                placeholder="Enter country name manually"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+              />
+              <button type="submit" className="secondary-btn">Add</button>
+            </form>
+          </div>
+        </>
+      )}
 
       {/* ── Upcoming Speakers ── */}
       <div className="queue-list-card">
