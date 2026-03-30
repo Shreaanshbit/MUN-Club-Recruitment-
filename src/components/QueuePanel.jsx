@@ -229,7 +229,16 @@ function QueuePanel({
 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={queue.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-            <div className="queue-list">
+            <div
+              className="queue-list custom-scroll"
+              style={{
+                maxHeight: '370px',
+                overflowY: 'auto',
+                paddingRight: 6,
+                scrollBehavior: 'smooth',
+                scrollbarWidth: 'thin',
+              }}
+            >
               {queue.length === 0 ? (
                 <p className="empty-text">No delegates in queue</p>
               ) : (
