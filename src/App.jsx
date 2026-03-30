@@ -50,10 +50,25 @@ function Header({ committeeTimeLeft, totalCommitteeTime }) {
   return (
     <header className="topbar">
       <div className="topbar-brand">
-        <div className="topbar-emblem">🌐</div>
+        <div
+          className="topbar-emblem"
+          style={{
+            background: 'linear-gradient(135deg, #e8eefc 60%, #f4f6fa 100%)',
+            padding: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <img
+            src="/logo-mun.png"
+            alt="MUN Club Logo"
+            style={{ width: 34, height: 34, objectFit: 'contain', filter: 'drop-shadow(0 1px 2px #bfcbe6)' }}
+          />
+        </div>
         <div>
-          <h1>MUN Chair Dashboard</h1>
-          <p>General Speakers' List Management</p>
+          <h1>VITB MUN</h1>
+          <p>Chair Dashboard</p>
         </div>
       </div>
       <div className="session-pill" style={{fontSize: '1.45rem', fontWeight: 700, padding: '10px 28px'}}>
