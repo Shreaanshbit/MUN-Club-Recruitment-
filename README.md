@@ -1,5 +1,7 @@
 # VITB MUN Chair Dashboard
 
+https://mun-club-recruitment.vercel.app/
+
 A modern, interactive dashboard for Model United Nations (MUN) chairs, built with React and Vite. This tool streamlines the management of speakers, timers, and yield controls during committee sessions.
 
 ## Features
