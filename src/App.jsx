@@ -4,7 +4,6 @@ import QueuePanel from "./components/QueuePanel";
 import TimerPanel from "./components/TimerPanel";
 import YieldPanel from "./components/YieldPanel";
 
-// ── Scroll-reveal hook ────────────────────────────────────────────────────────
 function useScrollReveal() {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -20,7 +19,6 @@ function useScrollReveal() {
   }, []);
   return [ref, visible];
 }
-
 function RevealCol({ children, delay = 0 }) {
   const [ref, visible] = useScrollReveal();
   return (
@@ -38,9 +36,7 @@ function RevealCol({ children, delay = 0 }) {
   );
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
 function Header({ committeeTimeLeft, totalCommitteeTime }) {
-  // Format committee time as hh:mm:ss
   const formatTime = (totalSeconds) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -85,30 +81,24 @@ function Header({ committeeTimeLeft, totalCommitteeTime }) {
   );
 }
 
-// ── App ───────────────────────────────────────────────────────────────────────
 function App() {
-  // ── State (your original backend) ──
   const [queue, setQueue] = useState([]);
   const [currentSpeaker, setCurrentSpeaker] = useState(null);
-
   const [defaultTime, setDefaultTime] = useState(90);
   const [timeLeft, setTimeLeft] = useState(90);
   const [isRunning, setIsRunning] = useState(false);
   const [mode, setMode] = useState("speech");
-
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [totalCommitteeTime, setTotalCommitteeTime] = useState("");
   const [committeeTimeLeft, setCommitteeTimeLeft] = useState(0);
-
-  // Parallax scroll
+ 
   const [scrollY, setScrollY] = useState(0);
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // ── Timer (your original backend) ──
+  {/* Watermark logo */}
   useEffect(() => {
     let interval;
     if (isRunning && (timeLeft > 0 || committeeTimeLeft > 0)) {
@@ -120,12 +110,11 @@ function App() {
     if (timeLeft === 0) setIsRunning(false);
     return () => clearInterval(interval);
   }, [isRunning, timeLeft, committeeTimeLeft]);
-
-  // ── Handlers (your original backend) ──
+  {/* Header */}
   const addCountry = (countryName) => {
     const cleaned = countryName.trim();
     if (!cleaned) return;
-
+  {/* Dashboard grid */}
     const alreadyExists =
       currentSpeaker?.country?.toLowerCase() === cleaned.toLowerCase() ||
       queue.some((item) => item.country.toLowerCase() === cleaned.toLowerCase());

@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 function YieldPanel({
   queue,
   currentSpeaker,
@@ -12,7 +11,6 @@ function YieldPanel({
   const [selectedDelegateId, setSelectedDelegateId] = useState("");
   const [activityLog, setActivityLog] = useState([]);
 
-  // ── Wrap yield actions to also append to activity log ─────────────────────
   const logAction = (action) => {
     const entry = {
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -21,20 +19,19 @@ function YieldPanel({
     };
     setActivityLog((prev) => [entry, ...prev].slice(0, 10));
   };
-
+  {/* ── Active speaker ── */}
   const handleYieldToChair = () => {
     if (isRunning || !currentSpeaker) return;
     logAction("Yielded to Chair");
     yieldToChair();
   };
-
+  {/* ── Yield buttons ── */}
   const handleYieldToQuestions = () => {
     if (isRunning || !currentSpeaker || mode === "questions") return;
     logAction("Yielded to Questions");
     yieldToQuestions();
   };
-
-  // ── Your original delegate yield handler ──────────────────────────────────
+  {/* ── Yield to delegate ── */}
   const handleYieldToDelegate = () => {
     if (!selectedDelegateId) return;
     const delegate = queue.find((item) => item.id === Number(selectedDelegateId));
@@ -42,7 +39,7 @@ function YieldPanel({
     yieldToDelegate(Number(selectedDelegateId));
     setSelectedDelegateId("");
   };
-
+  {/* ── Activity log ── */}
   return (
 
     <section className="panel premium-yield-panel">
@@ -75,7 +72,7 @@ function YieldPanel({
           disabled={isRunning || !currentSpeaker}
           className="yield-btn primary-yield"
         >
-          🪑 Yield to Chair
+           Yield to Chair
         </button>
 
         <button
@@ -83,7 +80,7 @@ function YieldPanel({
           disabled={isRunning || !currentSpeaker || mode === "questions"}
           className="yield-btn outline-yield"
         >
-          ❓ Yield to Questions
+           Yield to Questions
         </button>
       </div>
 

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-// Sortable item component for dnd-kit
 function SortableQueueItem({ id, children }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style = {
@@ -39,7 +38,6 @@ function QueuePanel({
   const [countriesError, setCountriesError] = useState("");
   const [searchQ, setSearchQ] = useState("");
 
-  // ── Your original fetch logic ──────────────────────────────────────────────
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -68,7 +66,6 @@ function QueuePanel({
     fetchCountries();
   }, []);
 
-  // ── Your original handlers ─────────────────────────────────────────────────
   const handleSubmit = (e) => {
     e.preventDefault();
     addCountry(country);
@@ -88,12 +85,10 @@ function QueuePanel({
     c.name.toLowerCase().includes(searchQ.toLowerCase())
   );
 
-  // Drag and drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  // Drag end handler
   const handleDragEnd = (event) => {
     const { active, over } = event;
     if (active.id !== over?.id) {
@@ -103,8 +98,6 @@ function QueuePanel({
       setQueue(newQueue);
     }
   };
-
-
   return (
     <section className="panel queue-panel">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -129,16 +122,14 @@ function QueuePanel({
           <span style={{ color: '#7A89B0', fontWeight: 600, fontSize: 14 }}>{minimized ? 'Expand' : 'Minimize'}</span>
         </button>
       </div>
-
+      {/* ── Committee Setup card ── */}
       {!minimized && (
         <>
-          {/* ── Committee Setup card ── */}
           <div className="setup-card">
             <div className="subsection-header">
               <h3>⚙ Committee Setup</h3>
               <span className="selected-count">{selectedCountries.length} selected</span>
             </div>
-
             {/* Search filter */}
             <label className="input-label">Search Countries</label>
             <input
@@ -147,7 +138,6 @@ function QueuePanel({
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
             />
-
             {/* Country list */}
             {loadingCountries ? (
               <p className="empty-text">Loading countries…</p>
@@ -183,7 +173,6 @@ function QueuePanel({
                 })}
               </div>
             )}
-
             {/* Committee time */}
             <div className="time-field-group">
               <label className="input-label">Total Committee Time (minutes)</label>
@@ -195,7 +184,7 @@ function QueuePanel({
                 className="time-input"
               />
             </div>
-
+          {/* ── Manual add ── */}
             <button
               onClick={initializeCommittee}
               className="init-btn primary-btn"
@@ -204,7 +193,7 @@ function QueuePanel({
               Initialize Committee
             </button>
           </div>
-
+  {/* ── Upcoming Speakers ── */}
           {/* ── Manual add ── */}
           <div className="manual-add">
             <form onSubmit={handleSubmit} className="add-form">

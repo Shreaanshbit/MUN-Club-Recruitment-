@@ -17,11 +17,11 @@ function TimerPanel({
     const seconds = totalSeconds % 60;
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   };
-
+  // ── Your original formatter ───────────────────────────────────────────────
   // ── Visual state derived from props ────────────────────────────────────────
   const isWarning = timeLeft <= 20 && timeLeft > 0;
   const isExpired = timeLeft === 0;
-
+  // ── Visual state derived from props ───────────────────────────────────────
 
 
   // SVG circular progress (speaker only)
@@ -31,7 +31,7 @@ function TimerPanel({
   const strokeDashoffset = isExpired
     ? CIRCUMFERENCE
     : CIRCUMFERENCE * (1 - progress);
-
+  {/* Speaker name */}
   const timerColorClass = isExpired
     ? "expired"
     : isWarning
@@ -39,22 +39,22 @@ function TimerPanel({
     : isRunning
     ? "running"
     : "idle";
-
+  {/* Circular timer with outer committee dial */}
   const statusText = isExpired
     ? "TIME EXPIRED"
     : isRunning
     ? "RUNNING"
     : "PAUSED";
-
+            {/* Track */}
   return (
     <section className="panel premium-timer-panel">
       <h2 className="timer-title">Committee Timer</h2>
-
+            {/* Animated arc — progress ring */}
       {/* Speaker name */}
       <p className="timer-speaker-name">
         {currentSpeaker ? currentSpeaker.country : "No speaker selected"}
       </p>
-
+          {/* Inner face */}
       {/* Circular timer with outer committee dial */}
       <div className="timer-centerpiece">
         <div className={`timer-ring-wrap timer-ring-wrap--${timerColorClass}${isWarning && isRunning ? " blink" : ""}`} style={{position: 'relative'}}>
@@ -96,7 +96,7 @@ function TimerPanel({
           </div>
         </div>
       </div>
-
+  {/* Controls */}
       {/* Controls */}
       <div className="timer-controls-grid">
         <button
@@ -106,7 +106,7 @@ function TimerPanel({
         >
           ▶ Start
         </button>
-
+  {/* Warning banner */}
         <button
           onClick={pauseTimer}
           disabled={!isRunning}
